@@ -29,6 +29,8 @@
 
 h1, h2, h3, h4, h5, h6 {
     color: var(--clr-primary-300);
+
+    text-align: center;
 }
 
 h1 {
@@ -48,7 +50,7 @@ ul, ol {
     padding: 0;
 }
 
-input {
+input[type=number] {
     width: 200px;
     height: 20px;
 
@@ -56,16 +58,38 @@ input {
     border-radius: 5px;
 }
 
-button {
+select {
+    height: 100px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 25px;
+}
+
+canvas {
+    background-color: white;
+
+    width: 50%;
+    height: 200px;
+}
+
+.button {
     background-color: var(--clr-comp-100);
     color: var(--clr-comp-900);
 
     border: solid 1px var(--clr-primary-300);
     border-radius: 10px;
     padding: 5px;
+
+    text-align: center;
 }
 
-button:hover {
+.button:hover {
     box-shadow: 0 0 3px 3px var(--clr-primary-200);
 }
 
@@ -100,7 +124,7 @@ table td {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-self: center;
+    justify-content: center;
     gap: 25px;
 
     width: 95%;
@@ -121,25 +145,6 @@ table td {
     gap: 5px;
 }
 
-#info-container {
-    position: fixed;
-    bottom: 0px;
-    left: 50%;
-    transform: translateX(-50%); 
-
-    height: 25%;
-
-    overflow: auto;
-}
-
-#room-container, #game-master, #show-users-button, #next-button {
-    display: none;
-}
-
-#room-container {
-    gap: 20px;
-}
-
-#username-input {
-    margin-bottom: 20px;
+#canvas-container {
+    flex-direction: row;
 }
