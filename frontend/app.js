@@ -10,39 +10,83 @@ function getRandomArray(length) {
 }
 
 function Canvas(props) {
-  const [comparisons, setComparisons] = React.useState(0);
+  const [count, setCount] = React.useState(0);
 
+  const start = props.start;
+  const dataAmount = props.dataAmount;
+  const delay = props.delay;
+  const canvasId = props.canvasId;
+  const array = props.array;
+  const algorithm = props.algoMap.get(props.canvasId);
+
+  async function sortArray() {
+    const canvas = document.getElementById(`canvas-${canvasId}`);
+
+    //object for drawing purposes
+    const draw = {
+      canvas: canvas,
+      delay: delay,
+      setCount: setCount
+    };
+
+    await algorithm.func(array, draw);
+    await afterSort(canvas);
+  }
+
+  async function afterSort(canvas) {
+    for(let i = 0;i < array.length;i++) {
+      if(i > 0) drawPillar(canvas, array, i - 1, COLOR.SORTED);
+      drawPillar(canvas, array, i, COLOR.START);
+
+      await sleep(Math.floor(1));
+    }
+    
+    drawPillar(canvas, array, array.length - 1, COLOR.SORTED);
+  }
+
+  function showArray() {
+    const canvas = document.getElementById(`canvas-${canvasId}`);
+
+    for(let i = 0;i < array.length;i++) {
+      drawPillar(canvas, array, i, COLOR.NORMAL);
+    }
+  }
+
+  //draw array on first render
   React.useEffect(() => {
-    console.log(props.algoMap.get(props.algoIndex))
+    showArray();
+  }, [dataAmount]);
 
-    let canvas = document.getElementById(`canvas-${props.algoIndex}`);
+  //start algorithm if start is true
+  React.useEffect(() => {
+    if(start != true) return;
 
-      for(let i = 0;i < props.array.length;i++) {
-        drawPillar(canvas, props.array, i, COLOR.NORMAL);
-      }
-
-      props.algoMap.get(props.algoIndex).func(props.array, canvas, setComparisons, 1);
-  }, []);
+    showArray();
+    sortArray();
+  }, [start]);
 
   return (
-    <div className="flex-container" key={props.algoIndex}>
-      <h3>{props.algoMap.get(props.algoIndex).name}</h3>
-      <p id={`canvas-info-${props.algoIndex}`}>{comparisons} Comparisons</p>
-      <canvas id={`canvas-${props.algoIndex}`}></canvas>
+    <div>
+      <h3>{algorithm.name}</h3>
+      <p id={`canvas-info-${canvasId}`}>{count} Comparisons</p>
+      <canvas id={`canvas-${canvasId}`}></canvas>
     </div>
   )
 }
 
 function App() {
-    const [dataAmount, setDataAmount] = React.useState(10); //input amount of items
-    const [delay, setDelay] = React.useState(1000);
-    const [data, setData] = React.useState(getRandomArray(dataAmount));
-    const [options, setOptions] = React.useState([]); //input algorithms
+    const [start, setStart] = React.useState(false); //true when sorting should start
+    const [dataAmount, setDataAmount] = React.useState(10); //data amount for data array
+    const [delay, setDelay] = React.useState(500); //delay between visualization steps
+    const [options, setOptions] = React.useState([]); //algorithms in select
+    const [data, setData] = React.useState(getRandomArray(dataAmount)); //random data array to be sorted
 
     const algoMap = new Map([
       [0, {name: 'Bubble Sort', func: bubbleSort}],
-      [1, {name: 'Insertion Sort', func: insertionSort}],
-      [2, {name: 'Selection Sort', func: selectionSort}]
+      [1, {name: 'Selection Sort', func: selectionSort}],
+      [2, {name: 'Insertion Sort', func: insertionSort}],
+      [3, {name: 'Merge Sort', func: mergeSort}],
+      [4, {name: 'Quick Sort', func: quickSort}]
     ]);
 
     function onDataAmountChange(event) {
@@ -79,23 +123,11 @@ function App() {
 
       setOptions(selected);
     }
-
-    function showSorting(array, algoIndex) {
-      /* let canvas = document.getElementById(`canvas-${algoIndex}`);
-
-      for(let i = 0;i < array.length;i++) {
-        drawPillar(canvas, array, i, COLOR.NORMAL);
-      }
-
-      algoMap.get(algoIndex).func(array, canvas, setComparisons, delay); */
-    }
  
     function handleSubmit(event) {
       event.preventDefault();
 
-      for(let algoIndex of options) {
-        showSorting(data.slice(), algoIndex);
-      }
+      setStart(true);
     }
 
     return (
@@ -107,10 +139,13 @@ function App() {
           <form onSubmit={handleSubmit}>
             <div className="flex-container">
               <h3># of items</h3>
-              <input name="runs" type="number" value={dataAmount} onChange={onDataAmountChange}/>
-
+              <p>{dataAmount}</p>
+              <input type="range" value={dataAmount} min="1" max="150" onChange={onDataAmountChange}/>
+            </div>
+            <div className="flex-container">
               <h3>Delay in ms</h3>
-              <input type="number" value={delay} onChange={onDelayChange}></input>
+              <p>{delay}</p>
+              <input type="range" value={delay} min="0" max="2000" onChange={onDelayChange}></input>
             </div>
             
             <div className="flex-container">
@@ -137,51 +172,12 @@ function App() {
 
         <section className="main-container" id="canvas-container">
           {
-            options.map((algoIndex, key) => {
-              return <Canvas algoIndex={algoIndex} algoMap={algoMap} array={data.slice()} key={key}></Canvas>
+            options.map((canvasId, key) => {
+              return <Canvas start={start} delay={delay} dataAmount={dataAmount}
+                      canvasId={canvasId} array={data.slice()} algoMap={algoMap}key={key}></Canvas>
             })
           }
-          {/* {
-            options.map((algoIndex, key) => {
-              const canvas = document.getElementById(`canvas-${algoIndex}`);
-
-              console.log(canvas)
-              for(let i = 0;i < data.length;i++) {
-                drawPillar(canvas, data, i, COLOR.NORMAL);
-              }
-            })
-          } */}
         </section>
-
-        {/* <section className="main-container">
-          <div id="result">No results...</div>
-
-          <table id="results-table">
-            <caption>Results of {items} runs</caption>
-            <thead>
-              <tr>
-                <th onClick={() => onSortChange("N")}>Name</th>
-                <th onClick={() => onSortChange("A")}>A</th>
-                <th onClick={() => onSortChange("B")}>B</th>
-                <th onClick={() => onSortChange("T")}>Total</th>
-              </tr>
-          </thead>
-          <tbody>
-            {
-              scores.map((val, key) => {
-              return (
-                <tr key={key}>
-                  <td>{val.name}</td>
-                  <td>{val.score.a.toFixed(6)}</td>
-                  <td>{val.score.b.toFixed(6)}</td>
-                  <td>{val.score.total.toFixed(6)}</td>
-                </tr>
-              )
-              })
-            }
-          </tbody>
-        </table>
-      </section> */}
       </main>
     );
 }

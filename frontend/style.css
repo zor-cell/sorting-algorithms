@@ -58,6 +58,33 @@ input[type=number] {
     border-radius: 5px;
 }
 
+input[type=range] {
+    width: 200px;
+    height: 5px;
+
+    appearance: none;
+    border: solid 1px var(--clr-primary-300);
+    border-radius: 5px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+
+    background: var(--clr-primary-300);
+    cursor: pointer;
+}
+
+input[type=range]::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #04AA6D;
+    cursor: pointer;
+  }
+
 select {
     height: 100px;
 }
@@ -74,7 +101,7 @@ form {
 canvas {
     background-color: white;
 
-    width: 50%;
+    width: 90%;
     height: 200px;
 }
 
@@ -146,5 +173,6 @@ table td {
 }
 
 #canvas-container {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 50% 50%;
 }
