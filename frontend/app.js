@@ -182,13 +182,24 @@ function App() {
         </section>
         
 
-        <section className="main-container" id="canvas-container">
+        <section className="main-container">
+          <h2>Visualization</h2>
+          <div id="canvas-container">
           {
-            options.map((canvasId, key) => {
+            //show options if possible, otherwise display text
+            (options.length > 0) ? options.map((canvasId, key) => {
               return <Canvas start={start} delay={delay} dataAmount={dataAmount}
                       canvasId={canvasId} array={data.slice()} algoMap={algoMap}key={key}></Canvas>
-            })
+            }) : <p id="canvas-container-info">No algorithm selected</p>
           }
+          </div>
+        </section>
+
+        <section className="main-container">
+          <h2>Speed comparison</h2>
+          <div>
+            Table
+          </div>
         </section>
       </main>
     );

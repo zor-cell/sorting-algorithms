@@ -175,5 +175,12 @@ table td {
 
 #canvas-container {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: repeat(2, min-content);
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+
+#canvas-container-info {
+    text-wrap: nowrap;
 }
