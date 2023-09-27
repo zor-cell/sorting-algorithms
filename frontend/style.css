@@ -103,6 +103,7 @@ canvas {
 
     width: 90%;
     height: 200px;
+    padding: none;
 }
 
 .button {

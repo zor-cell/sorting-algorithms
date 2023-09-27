@@ -3,7 +3,7 @@
 function getRandomArray(length) {
   let temp = new Array(length);
   for(let i = 0;i < temp.length;i++) {
-    temp[i] = Math.random() * MAX_NUMBER;
+    temp[i] = Math.random() * MAX_HEIGHT;
   }
 
   return temp;
@@ -36,7 +36,7 @@ function Canvas(props) {
   async function afterSort(canvas) {
     for(let i = 0;i < array.length;i++) {
       if(i > 0) drawPillar(canvas, array, i - 1, COLOR.SORTED);
-      drawPillar(canvas, array, i, COLOR.START);
+      drawPillar(canvas, array, i, COLOR.GREEN);
 
       await sleep(Math.floor(1));
     }
@@ -48,12 +48,24 @@ function Canvas(props) {
     const canvas = document.getElementById(`canvas-${canvasId}`);
 
     for(let i = 0;i < array.length;i++) {
-      drawPillar(canvas, array, i, COLOR.NORMAL);
+      drawPillar(canvas, array, i, COLOR.DEFAULT);
     }
+  }
+
+  function setCanvasWidth() {
+    const canvas = document.getElementById(`canvas-${canvasId}`);
+    const pillarWidth = Math.floor(MAX_CANVAS_WIDTH / array.length);
+    const canvasWidth = pillarWidth * array.length;
+
+    //show new width in html
+    canvas.style.width = `${canvasWidth}px`;
+    //show new width in 
+    canvas.width = canvasWidth;
   }
 
   //draw array on first render
   React.useEffect(() => {
+    setCanvasWidth();
     showArray();
   }, [dataAmount]);
 
@@ -77,7 +89,7 @@ function Canvas(props) {
 function App() {
     const [start, setStart] = React.useState(false); //true when sorting should start
     const [dataAmount, setDataAmount] = React.useState(10); //data amount for data array
-    const [delay, setDelay] = React.useState(500); //delay between visualization steps
+    const [delay, setDelay] = React.useState(1000); //delay between visualization steps
     const [options, setOptions] = React.useState([]); //algorithms in select
     const [data, setData] = React.useState(getRandomArray(dataAmount)); //random data array to be sorted
 
@@ -86,7 +98,7 @@ function App() {
       [1, {name: 'Selection Sort', func: selectionSort}],
       [2, {name: 'Insertion Sort', func: insertionSort}],
       [3, {name: 'Merge Sort', func: mergeSort}],
-      [4, {name: 'Quick Sort', func: quickSort}]
+      [4, {name: 'Quick Sort', func: quickSort}],
     ]);
 
     function onDataAmountChange(event) {
@@ -140,7 +152,7 @@ function App() {
             <div className="flex-container">
               <h3># of items</h3>
               <p>{dataAmount}</p>
-              <input type="range" value={dataAmount} min="1" max="150" onChange={onDataAmountChange}/>
+              <input type="range" value={dataAmount} min="1" max={MAX_CANVAS_WIDTH} onChange={onDataAmountChange}/>
             </div>
             <div className="flex-container">
               <h3>Delay in ms</h3>

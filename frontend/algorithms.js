@@ -1,13 +1,13 @@
-const MAX_NUMBER = 1000;
+const MAX_HEIGHT = 1000;
+const MAX_CANVAS_WIDTH = 600;
 const COLOR = {
-    NORMAL: 'rgb(200, 200, 200)',
+    DEFAULT: 'rgb(200, 200, 200)',
     SORTED: 'rgb(100, 100, 100)',
-    START: 'rgb(0, 255, 0)',
     CURRENT: 'rgb(255, 0, 0)',
-    BLUE: 'rgb(0, 0, 255)'
+    BLUE: 'rgb(0, 0, 255)',
+    GREEN: 'rgb(0, 255, 0)',
 }
 
-//timsort, quicksort, radix sort, counting sort, 
 
 //stop code for given milliseconds
 function sleep(ms) {
@@ -19,21 +19,25 @@ function map(number, inMin, inMax, outMin, outMax) {
     return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }
 
+function getPillarWidth(canvas, array) {
+    return Math.floor(canvas.width / array.length);
+}
+
 function drawPillar(canvas, data, i, color) {
     let ctx = canvas.getContext('2d');
 
-    const width = Math.ceil(canvas.width / data.length);
-    const height = map(data[i], 0, MAX_NUMBER, 0, canvas.height); 
+    const width = getPillarWidth(canvas, data);
+    const height = map(data[i], 0, MAX_HEIGHT, 0, canvas.height); 
 
     ctx.fillStyle = color;
     ctx.clearRect(width * i, 0, width, canvas.height);
     ctx.fillRect(width * i, canvas.height - height, width, canvas.height);
 }
 
-function drawPillar2(canvas, value,width, i, color) {
+function drawPillarWithValue(canvas, value, width, i, color) {
     let ctx = canvas.getContext('2d');
 
-    const height = map(value, 0, MAX_NUMBER, 0, canvas.height); 
+    const height = map(value, 0, MAX_HEIGHT, 0, canvas.height); 
 
     ctx.fillStyle = color;
     ctx.clearRect(width * i, 0, width, canvas.height);
@@ -59,7 +63,7 @@ async function bubbleSort(array, draw) {
                 swap(array, j, j + 1);
             }
 
-            drawPillar(draw.canvas, array, j, COLOR.NORMAL);
+            drawPillar(draw.canvas, array, j, COLOR.DEFAULT);
         }
         drawPillar(draw.canvas, array, j, COLOR.SORTED);
     }
@@ -99,21 +103,21 @@ async function selectionSort(array, draw) {
             await sleep(draw.delay);
 
             if(array[j] < array[minIndex]) {
-                drawPillar(draw.canvas, array, minIndex, COLOR.NORMAL);
+                drawPillar(draw.canvas, array, minIndex, COLOR.DEFAULT);
                 minIndex = j;
             } else {
-                drawPillar(draw.canvas, array, j, COLOR.NORMAL);
+                drawPillar(draw.canvas, array, j, COLOR.DEFAULT);
             }
         }
 
         swap(array, i, minIndex);
-        drawPillar(draw.canvas, array, minIndex, COLOR.NORMAL);
+        drawPillar(draw.canvas, array, minIndex, COLOR.DEFAULT);
         drawPillar(draw.canvas, array, i, COLOR.SORTED);
     }
 }
 
 async function mergeSort(array, draw) {
-    const width = Math.ceil(draw.canvas.width / array.length);
+    const width = getPillarWidth(draw.canvas, array);
 
     await mergeSortRec(array, draw, width, 0)
     .then(resultArray => {
@@ -131,9 +135,9 @@ async function mergeSortRec(array, draw, width, index) {
 
     let mid = Math.floor(array.length / 2);
     //draw pivot
-   /*  drawPillar2(draw.canvas, array[mid], width, index + mid, COLOR.CURRENT);
+   /*  drawPillarWithValue(draw.canvas, array[mid], width, index + mid, COLOR.CURRENT);
     await sleep(draw.delay);
-    drawPillar2(draw.canvas, array[mid], width, index + mid, COLOR.NORMAL); */
+    drawPillarWithValue(draw.canvas, array[mid], width, index + mid, COLOR.DEFAULT); */
 
     let left = await mergeSortRec(array.slice(0, mid), draw, width, index);
     let right = await mergeSortRec(array.slice(mid), draw, width, index + mid);
@@ -167,9 +171,9 @@ async function merge(left, right, draw, width, index) {
             rightIndex++;
         }
 
-        drawPillar2(draw.canvas, array[i], width, index + i, COLOR.CURRENT);
+        drawPillarWithValue(draw.canvas, array[i], width, index + i, COLOR.CURRENT);
         await sleep(draw.delay);
-        drawPillar2(draw.canvas, array[i], width, index + i, COLOR.NORMAL);
+        drawPillarWithValue(draw.canvas, array[i], width, index + i, COLOR.SORTED);
         
         i++;
     }
@@ -178,23 +182,19 @@ async function merge(left, right, draw, width, index) {
 }
 
 async function quickSort(array, draw) {
-    const width = Math.ceil(draw.canvas.width / array.length);
-
     await quickSortRec(array, draw, 0, array.length - 1);
 }
 
 async function quickSortRec(array, draw, left, right) {
     if(left >= right) {
+        drawPillar(draw.canvas, array, left, COLOR.SORTED);
+        drawPillar(draw.canvas, array, right, COLOR.SORTED);
         return;
     }
 
     drawPillar(draw.canvas, array, right, COLOR.CURRENT);
 
     let pivot = await partition(array, draw, left, right);
-
-    drawPillar(draw.canvas, array, right, COLOR.NORMAL);
-    drawPillar(draw.canvas, array, pivot, COLOR.CURRENT);
-    
 
     await quickSortRec(array, draw, left, pivot - 1);
     await quickSortRec(array, draw, pivot + 1, right);
@@ -203,26 +203,39 @@ async function quickSortRec(array, draw, left, right) {
 async function partition(array, draw, left, right) {
     let pivot = array[right];
 
-    let i = left;
-    let j = right - 1;
+    let i, j;
+    for(i = left, j = right - 1;i < j;) {
+        draw.setCount(prevCnt => prevCnt + 1);
 
-    while(i < j) {
-        while(array[i] < pivot) i++;
-        while(j > left && array[j] > pivot) j--;
-
-        if(i < j) {
-            swap(array, i, j);
-            i++;
-            j--;
-        }
+        //Draw new ones
+        drawPillar(draw.canvas, array, i, COLOR.GREEN);
+        drawPillar(draw.canvas, array, j, COLOR.BLUE);
 
         await sleep(draw.delay);
-        draw.setCount(prevCnt => prevCnt + 1);
+
+        //reset pillars
+        drawPillar(draw.canvas, array, i, COLOR.DEFAULT);
+        drawPillar(draw.canvas, array, j, COLOR.DEFAULT);
+
+        if(array[i] < pivot) {
+            i++;
+            continue;
+        }
+        if(array[j] > pivot) {
+            j--;
+            continue;
+        }
+
+        swap(array, i, j);
     }
 
-    if(i == j && array[i] < pivot) i++;
+    if(i == j && array[i] < pivot) {
+        i++;
+    }
+    swap(array, right, i);
 
-    swap(array, i, right);
+    drawPillar(draw.canvas, array, i, COLOR.SORTED);
+    drawPillar(draw.canvas, array, right, COLOR.DEFAULT);
 
     return i;
 }
