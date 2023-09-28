@@ -88,6 +88,7 @@ function Canvas(props) {
 
 function App() {
     const [start, setStart] = React.useState(false); //true when sorting should start
+    const [sortedPercent, setSortedPercent] = React.useState(0); //percentage of already sorted items in array
     const [dataAmount, setDataAmount] = React.useState(10); //data amount for data array
     const [delay, setDelay] = React.useState(1000); //delay between visualization steps
     const [options, setOptions] = React.useState([]); //algorithms in select
@@ -99,7 +100,14 @@ function App() {
       [2, {name: 'Insertion Sort', func: insertionSort}],
       [3, {name: 'Merge Sort', func: mergeSort}],
       [4, {name: 'Quick Sort', func: quickSort}],
+      [5, {name: 'Heap Sort', func: heapSort}],
     ]);
+
+    function onSortedPercentChange(event) {
+      const num = Number(event.target.value);
+
+      setSortedPercent(num);
+    }
 
     function onDataAmountChange(event) {
       const num = Number(event.target.value);
@@ -150,10 +158,17 @@ function App() {
 
           <form onSubmit={handleSubmit}>
             <div className="flex-container">
+              <h3>% of sorted items</h3>
+              <p>{sortedPercent}</p>
+              <input type="range" value={sortedPercent} min="0" max="100" onChange={onSortedPercentChange}/>
+            </div>
+
+            <div className="flex-container">
               <h3># of items</h3>
               <p>{dataAmount}</p>
               <input type="range" value={dataAmount} min="1" max={MAX_CANVAS_WIDTH} onChange={onDataAmountChange}/>
             </div>
+
             <div className="flex-container">
               <h3>Delay in ms</h3>
               <p>{delay}</p>
@@ -176,11 +191,10 @@ function App() {
               </select>
               <input className="button" type="button" onClick={onSelectAll} value="Select All"></input>
             </div>
-
+                  
             <input className="button" type="submit" value="Start"></input>
           </form>
         </section>
-        
 
         <section className="main-container">
           <h2>Visualization</h2>
@@ -198,7 +212,43 @@ function App() {
         <section className="main-container">
           <h2>Speed comparison</h2>
           <div>
-            Table
+          <table>
+            <caption>Table caption</caption>
+            <thead>
+              <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>Total</th>
+              </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>value1</td>
+              <td>value2</td>
+              <td>value3</td>
+              <td>value4</td>
+            </tr>
+            <tr>
+              <td>value1</td>
+              <td>value2</td>
+              <td>value3</td>
+              <td>value4</td>
+            </tr>
+            <tr>
+              <td>value1</td>
+              <td>value2</td>
+              <td>value3</td>
+              <td>value4</td>
+            </tr>
+            <tr>
+              <td>value1</td>
+              <td>value2</td>
+              <td>value3</td>
+              <td>value4</td>
+            </tr>
+          </tbody>
+        </table>
           </div>
         </section>
       </main>

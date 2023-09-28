@@ -239,3 +239,7 @@ async function partition(array, draw, left, right) {
 
     return i;
 }
+
+async function heapSort(array, draw) {    
+    
+}
