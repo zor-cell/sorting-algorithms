@@ -1,10 +1,37 @@
-//import { comparisonHook } from "../hooks";
+const MAX_HEIGHT = 1000;
+const MAX_CANVAS_WIDTH = getMaxWidth();
+const COLOR = {
+    DEFAULT: 'rgb(200, 200, 200)',
+    SORTED: 'rgb(100, 100, 100)',
+    CURRENT: 'rgb(255, 0, 0)',
+    BLUE: 'rgb(0, 0, 255)',
+    GREEN: 'rgb(0, 255, 0)',
+}
 
-function getRandomArray(length) {
+function getMaxWidth() {
+    const width = window.innerWidth;
+    const padding = 75;
+
+    return Math.min(Math.floor(width / 2) - padding, 600);
+}
+
+function getRandomArray(length, sortedPercent) {
   let temp = new Array(length);
   for(let i = 0;i < temp.length;i++) {
     temp[i] = Math.random() * MAX_HEIGHT;
   }
+  /* temp.sort((a, b) => {
+    return a - b;
+  }); */
+
+  //random shuffles
+/*   let shuffleCount = Math.floor((1 - sortedPercent / 100) * temp.length);
+  for(let i = 0;i < shuffleCount;i++) {
+    let index1 = Math.floor(Math.random() * temp.length);
+    let index2 = Math.floor(Math.random() * temp.length);
+
+    swap(temp, index1, index2);
+  } */
 
   return temp;
 }
@@ -14,6 +41,7 @@ function Canvas(props) {
 
   const start = props.start;
   const dataAmount = props.dataAmount;
+  const sortedPercent = props.sortedPercent;
   const delay = props.delay;
   const canvasId = props.canvasId;
   const array = props.array;
@@ -67,7 +95,7 @@ function Canvas(props) {
   React.useEffect(() => {
     setCanvasWidth();
     showArray();
-  }, [dataAmount]);
+  }, [dataAmount, sortedPercent]);
 
   //start algorithm if start is true
   React.useEffect(() => {
@@ -92,7 +120,7 @@ function App() {
     const [dataAmount, setDataAmount] = React.useState(10); //data amount for data array
     const [delay, setDelay] = React.useState(1000); //delay between visualization steps
     const [options, setOptions] = React.useState([]); //algorithms in select
-    const [data, setData] = React.useState(getRandomArray(dataAmount)); //random data array to be sorted
+    const [data, setData] = React.useState(getRandomArray(dataAmount, sortedPercent)); //random data array to be sorted
 
     const algoMap = new Map([
       [0, {name: 'Bubble Sort', func: bubbleSort}],
@@ -107,13 +135,14 @@ function App() {
       const num = Number(event.target.value);
 
       setSortedPercent(num);
+      setData(getRandomArray(data.length, num));
     }
 
     function onDataAmountChange(event) {
       const num = Number(event.target.value);
 
       setDataAmount(num);
-      setData(getRandomArray(num));
+      setData(getRandomArray(num, sortedPercent));
     }
 
     function onDelayChange(event) {
@@ -202,7 +231,7 @@ function App() {
           {
             //show options if possible, otherwise display text
             (options.length > 0) ? options.map((canvasId, key) => {
-              return <Canvas start={start} delay={delay} dataAmount={dataAmount}
+              return <Canvas start={start} delay={delay} dataAmount={dataAmount} sortedPercent={sortedPercent}
                       canvasId={canvasId} array={data.slice()} algoMap={algoMap}key={key}></Canvas>
             }) : <p id="canvas-container-info">No algorithm selected</p>
           }

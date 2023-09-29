@@ -1,14 +1,3 @@
-const MAX_HEIGHT = 1000;
-const MAX_CANVAS_WIDTH = 600;
-const COLOR = {
-    DEFAULT: 'rgb(200, 200, 200)',
-    SORTED: 'rgb(100, 100, 100)',
-    CURRENT: 'rgb(255, 0, 0)',
-    BLUE: 'rgb(0, 0, 255)',
-    GREEN: 'rgb(0, 255, 0)',
-}
-
-
 //stop code for given milliseconds
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -240,6 +229,51 @@ async function partition(array, draw, left, right) {
     return i;
 }
 
-async function heapSort(array, draw) {    
-    
+async function heapSort(array, draw) {  
+    //build heap  
+    for(let i = Math.floor(array.length / 2) - 1;i >= 0;i--) {
+        await heapify(array, array.length, i, draw);
+    }
+
+    //extract max element and repair heap, max element moved into sorted portion
+    for(let i = array.length - 1;i > 0;i--) {
+        swap(array, 0, i);
+
+        drawPillar(draw.canvas, array, 0, COLOR.DEFAULT);
+
+        await heapify(array, i, 0, draw);
+
+        drawPillar(draw.canvas, array, i, COLOR.SORTED);
+    }
+}
+
+async function heapify(array, size, i, draw) {
+    let max = i;
+    let leftChild = 2 * i + 1;
+    let rightChild = 2 * i + 2;
+
+    if(leftChild < size && array[leftChild] > array[max]) {
+        max = leftChild;
+    }
+    if(rightChild < size && array[rightChild] > array[max]) {
+        max = rightChild;
+    }
+
+    if(max != i) {
+        draw.setCount(prevCnt => prevCnt + 1);
+
+        drawPillar(draw.canvas, array, i, COLOR.CURRENT);
+        drawPillar(draw.canvas, array, leftChild, COLOR.GREEN);
+        drawPillar(draw.canvas, array, rightChild, COLOR.BLUE);
+
+        swap(array, max, i);
+
+        await sleep(draw.delay);
+
+        drawPillar(draw.canvas, array, i, COLOR.DEFAULT);
+        drawPillar(draw.canvas, array, leftChild, COLOR.DEFAULT);
+        drawPillar(draw.canvas, array, rightChild, COLOR.DEFAULT);
+
+        await heapify(array, size, max, draw);
+    }
 }

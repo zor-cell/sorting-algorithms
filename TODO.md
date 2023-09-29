@@ -4,7 +4,7 @@
 - [x] Insertion Sort
 - [x] Merge Sort
 - [x] Quicksort
-- [] Heap Sort
+- [x] Heap Sort
 - [] Timsort
 
 ## Non-comparison based algorithms:
@@ -13,6 +13,7 @@
 
 ## Features
 - [ ] Show current data array
+- [ ] Mobile device compatability (width depending on event listener, one columns on mobile?, getting margin from )
 - [ ] Create nearly sorted array
 - [ ] Restart Visualization
 - [ ] Stop Visualization (if possible)
